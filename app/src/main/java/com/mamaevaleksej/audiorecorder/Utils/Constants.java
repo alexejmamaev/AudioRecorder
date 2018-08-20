@@ -1,0 +1,29 @@
+package com.mamaevaleksej.audiorecorder.Utils;
+
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+
+public class Constants {
+
+    public final static int REQUEST_PERMISSIONS = 200;
+
+    public final static String IS_RECORDING = "is_recording";
+
+    public final static String RECORDED_FILE_PATH = "my_recorded_file_path";
+    public final static String RECORDED_FILE_PATH_IS_MISSING = "file_missing";
+
+    public final static String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+    public final static String AUDIO_RECORDER_TEMP_FILE = "record_temp.raw";
+
+    public final static int BUFFER_SIZE = AudioRecord.getMinBufferSize(8000,
+            Constants.RECORDER_CHANNELS,
+            Constants.RECORDER_AUDIO_ENCODING);
+
+    public final static int RECORDER_BPP = 16;
+    public final static int RECORDER_SAMPLERATE = 44100;
+    public final static int RECORDER_CHANNELS = AudioFormat.CHANNEL_OUT_STEREO;
+    public final static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    public final static String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+    public final static int BUFFER_ELEMENTS = 2048;
+
+}

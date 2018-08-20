@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Audio Recorder</string>
+    <string name="button_save">Запись</string>
+    <string name="button_play">Воспроизвести</string>
+    <string name="button_stop">Стоп</string>
+    <string name="no_mic">Извините, Ваше устройство не снабжено микрофоном</string>
+    <string name="recording_finished">Файл %1$s записан</string>
+    <string name="file_not_found">"Файл не найден"</string>
+
+</resources>

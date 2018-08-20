@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <!--RecorderActivity-->
+
+    <!--Buttons titles-->
+    <string name="button_save">Record</string>
+    <string name="button_play">Play</string>
+    <string name="button_stop">Stop</string>
+
+    <!--No mic message-->
+    <string name="no_mic">Sorry, your device does not equipped with microphone</string>
+
+    <!--Audio file path-->
+    <string name="audio_file_path" translatable="false">/audiorecord.3gp</string>
+
+    <!--Recording finished Toast message-->
+    <string name="recording_finished">"File %1$s recorded"</string>
+
+    <!--File not found Toast message-->
+    <string name="file_not_found">"File not found"</string>
+
+</resources>
