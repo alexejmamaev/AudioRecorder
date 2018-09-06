@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder;
+package com.mamaevaleksej.audiorecorder.sync;
 
 import android.app.Service;
 import android.content.Intent;
@@ -30,7 +30,7 @@ public class RecordService extends Service {
     private ServiceHandler mServiceHandler;
 
     private LocalBroadcastManager mBroadcastManager;
-    public static final String ACTION_RECORD = "com.mamaevaleksej.audiorecorder.RecordService";
+    public static final String ACTION_RECORD = "com.mamaevaleksej.audiorecorder.sync.RecordService";
 
     private AudioRecord mRecorder = null;
     private String mRecordedFilePath, mTempFilePath;
@@ -66,17 +66,18 @@ public class RecordService extends Service {
         isRecording = intent.getBooleanExtra(Constants.IS_RECORDING, false);
 
         if (isRecording){
+            NotificationTask.executeTask(getApplicationContext(), Constants.ACTION_SHOW_NOTIFICATION);
             final Runnable mRecordRunnable = new Runnable() {
                 @Override
                 public void run() {
                     recordAudioFile();
-                    // Stops recording in 7 second period
+                    // Stops recording in 10 second period
                     mServiceHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             stopRecordAudioFile();
                         }
-                    }, 7000);
+                    }, 10000);
                 }
             };
             mServiceHandler.post(mRecordRunnable);
@@ -111,6 +112,7 @@ public class RecordService extends Service {
                 writeAudioDataToFile();
             }
         });
+
 
     }
 
@@ -149,6 +151,7 @@ public class RecordService extends Service {
 
     private void stopRecordAudioFile() {
         isRecording = false;
+        NotificationTask.executeTask(getApplicationContext(), Constants.ACTION_CLEAR_NOTIFICATION);
         if (null != mRecorder) {
             int i = mRecorder.getState();
             if (i == 1) mRecorder.stop();

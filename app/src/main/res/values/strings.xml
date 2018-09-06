@@ -20,4 +20,10 @@
     <!--File not found Toast message-->
     <string name="file_not_found">"File not found"</string>
 
+
+    <!--NotificationUtils-->
+    <string name="notification_title">"Audio Recorder"</string>
+    <string name="notification_recording">"Recording...."</string>
+    <string name="notification_stop_recording">"Stop"</string>
+
 </resources>

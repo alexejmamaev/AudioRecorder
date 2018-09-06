@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
+import com.mamaevaleksej.audiorecorder.sync.PlayService;
+import com.mamaevaleksej.audiorecorder.sync.RecordService;
 
 public class RecorderActivity extends AppCompatActivity {
 
@@ -45,7 +47,7 @@ public class RecorderActivity extends AppCompatActivity {
             }
 
             // Set up actions upon callback from Play service
-            if (intent.getAction().equals(PlayService.ACTION_PLAY)){
+            else if (intent.getAction().equals(PlayService.ACTION_PLAY)){
                 // Kicks off file not found toast
                 if (mToast != null) mToast.cancel();
                 mToast = Toast.makeText
@@ -83,6 +85,12 @@ public class RecorderActivity extends AppCompatActivity {
                 myServiceIsRunning(RecordService.class));
         Log.d(TAG, "On create Service Play is running: -------> " +
                 myServiceIsRunning(PlayService.class));
+
+        if (myServiceIsRunning(RecordService.class)){
+            mButtonSave.setText(R.string.button_stop);
+        } else {
+            mButtonSave.setText(R.string.button_save);
+        }
     }
 
     @Override
@@ -96,6 +104,7 @@ public class RecorderActivity extends AppCompatActivity {
 
         /* Set save button */
         mButtonSave = findViewById(R.id.buttonRecord);
+
         mButtonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

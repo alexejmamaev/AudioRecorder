@@ -7,5 +7,7 @@
     <string name="no_mic">Извините, Ваше устройство не снабжено микрофоном</string>
     <string name="recording_finished">Файл %1$s записан</string>
     <string name="file_not_found">"Файл не найден"</string>
+    <string name="notification_recording">Идет запись....</string>
+    <string name="notification_stop_recording">Остановить</string>
 
 </resources>

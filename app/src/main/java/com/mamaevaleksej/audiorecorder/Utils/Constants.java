@@ -26,4 +26,17 @@ public class Constants {
     public final static String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     public final static int BUFFER_ELEMENTS = 2048;
 
+    /** NotificationTask.class **/
+    public static final String ACTION_CLEAR_NOTIFICATION = "notification-clear";
+    public static final String ACTION_SHOW_NOTIFICATION = "notification-show";
+
+    /** NotificationUtils.class **/
+    // Notification ID to access notification after it's been displayed.
+    public static final int RECORDING_NOTIFICATION_ID = 1138;
+    // PendingIntent id
+    public static final int RECORDER_PENDING_INTENT_ID = 4217;
+    // Notification channel id
+    public static final String RECORDER_NOTIFICATION_CHANNEL_ID = "recorder_notification_channel";
+    public static final int ACTION_CANCEL_RECORDING_PENDING_INTENT_ID = 19;
+
 }
