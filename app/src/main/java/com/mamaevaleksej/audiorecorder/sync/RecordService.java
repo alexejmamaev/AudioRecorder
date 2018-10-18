@@ -1,6 +1,7 @@
 package com.mamaevaleksej.audiorecorder.sync;
 
 import android.app.Service;
+import android.arch.lifecycle.LiveData;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioRecord;
@@ -13,14 +14,19 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
-import com.mamaevaleksej.audiorecorder.Utils.AppExecutor;
+import com.mamaevaleksej.audiorecorder.Utils.AppExecutors;
+import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
 import com.mamaevaleksej.audiorecorder.Utils.WavConverterUtils;
+import com.mamaevaleksej.audiorecorder.model.Record;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
 
 public class RecordService extends Service {
 
@@ -106,7 +112,7 @@ public class RecordService extends Service {
         int i = mRecorder.getState();
         if (i == 1) mRecorder.startRecording();
 
-        AppExecutor.getInstance().IoExecutor().execute(new Runnable() {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 writeAudioDataToFile();
@@ -162,6 +168,8 @@ public class RecordService extends Service {
         WavConverterUtils.copyWaveFile(WavConverterUtils.getTempFilename(), mRecordedFilePath, Constants.BUFFER_SIZE);
         WavConverterUtils.deleteTempFile(WavConverterUtils.getTempFilename());
 
+        java.util.Date date = Calendar.getInstance().getTime();
+
         Intent intent1 = new Intent(ACTION_RECORD);
         intent1.putExtra(Constants.RECORDED_FILE_PATH, mRecordedFilePath);
         mBroadcastManager.sendBroadcast(intent1);
@@ -172,6 +180,18 @@ public class RecordService extends Service {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(Constants.RECORDED_FILE_PATH, mRecordedFilePath);
         editor.apply();
+
+        Record mRecord = new Record(mRecordedFilePath, date, 1);
+
+        AppRepository.getsInstance(this).insertNewRecord(mRecord);
+
+        LiveData<List<Record>> rows = AppRepository.getsInstance(this).getAllRecordsList();
+        if (rows != null){
+            Log.d(TAG, "LIST SIZE ========> " + mRecord);
+        }
+
+        Log.d(TAG, "+++++++++++ " + mRecordedFilePath + " " + date);
+
 
             stopSelf();
     }

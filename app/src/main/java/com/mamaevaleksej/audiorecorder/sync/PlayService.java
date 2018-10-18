@@ -91,7 +91,7 @@ public class PlayService extends IntentService {
     private String getLastRecordedFilePath(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences
                 (getApplicationContext());
-        String mRecordedFilePath =  preferences.getString(Constants.RECORDED_FILE_PATH,
+        String mRecordedFilePath = preferences.getString(Constants.RECORDED_FILE_PATH,
                 Constants.RECORDED_FILE_PATH_IS_MISSING);
         return (mRecordedFilePath.equals
                 (Constants.RECORDED_FILE_PATH_IS_MISSING)) ? "" : mRecordedFilePath;

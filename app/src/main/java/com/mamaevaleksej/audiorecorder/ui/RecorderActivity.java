@@ -1,33 +1,46 @@
-package com.mamaevaleksej.audiorecorder;
+package com.mamaevaleksej.audiorecorder.ui;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.mamaevaleksej.audiorecorder.R;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
+import com.mamaevaleksej.audiorecorder.model.Record;
 import com.mamaevaleksej.audiorecorder.sync.PlayService;
 import com.mamaevaleksej.audiorecorder.sync.RecordService;
 
-public class RecorderActivity extends AppCompatActivity {
+import java.util.List;
+
+public class RecorderActivity extends AppCompatActivity implements RecorderAdapter.ItemClickListener {
 
     private final String TAG = RecorderActivity.class.getSimpleName();
-//    public static final String ACTION = "com.mamaevaleksej.audiorecorder.RecorderActivity";
+//    public static final String ACTION = "com.mamaevaleksej.audiorecorder.ui.RecorderActivity";
     private Toast mToast;
     private Button mButtonSave, mButtonPlay;
     private boolean isRecording = false;
+    private RecyclerView mRecyclerView;
+    private RecorderAdapter mAdapter;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
@@ -64,6 +77,23 @@ public class RecorderActivity extends AppCompatActivity {
 
         initViews();
 
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int itemPosition = viewHolder.getAdapterPosition();
+
+//                AppRepository.getsInstance(getApplicationContext()).deleteRecord(itemPosition);
+            }
+        }).attachToRecyclerView(mRecyclerView);
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.IS_RECORDING)){
                 isRecording = savedInstanceState.getBoolean(Constants.IS_RECORDING);
@@ -91,6 +121,9 @@ public class RecorderActivity extends AppCompatActivity {
         } else {
             mButtonSave.setText(R.string.button_save);
         }
+
+        setupViewModel();
+
     }
 
     @Override
@@ -153,6 +186,24 @@ public class RecorderActivity extends AppCompatActivity {
                 else Log.d(TAG, "on Button click check: Service Play is running: -------> " +
                         myServiceIsRunning(PlayService.class));
                 }
+        });
+
+        mRecyclerView = findViewById(R.id.recyclerview_records);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter = new RecorderAdapter(this, this);
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
+
+    private void setupViewModel(){
+        final RecorderActivityViewModel viewModel = ViewModelProviders.of(this)
+                .get(RecorderActivityViewModel.class);
+        viewModel.getRecords().observe(this, new Observer<List<Record>>() {
+            @Override
+            public void onChanged(@Nullable List<Record> records) {
+                Log.d(TAG, "Updating list of records from LiveData in ViewModel **********");
+                mAdapter.setmRecords(records);
+            }
         });
     }
 
@@ -227,4 +278,8 @@ public class RecorderActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onItemClickListener(int itemId) {
+
+    }
 }
