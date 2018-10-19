@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +25,7 @@ import android.widget.Toast;
 
 import com.mamaevaleksej.audiorecorder.R;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
+import com.mamaevaleksej.audiorecorder.Utils.ItemTouchHelperCallback;
 import com.mamaevaleksej.audiorecorder.model.Record;
 import com.mamaevaleksej.audiorecorder.sync.PlayService;
 import com.mamaevaleksej.audiorecorder.sync.RecordService;
@@ -77,22 +77,11 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
 
         initViews();
 
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder viewHolder1) {
-                return false;
-            }
+        // SetUp swipe deletion
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(mRecyclerView);
 
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int itemPosition = viewHolder.getAdapterPosition();
-
-//                AppRepository.getsInstance(getApplicationContext()).deleteRecord(itemPosition);
-            }
-        }).attachToRecyclerView(mRecyclerView);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.IS_RECORDING)){

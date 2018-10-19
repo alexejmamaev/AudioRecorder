@@ -3,19 +3,25 @@ package com.mamaevaleksej.audiorecorder.ui;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mamaevaleksej.audiorecorder.R;
+import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
+import com.mamaevaleksej.audiorecorder.Utils.ItemTouchHelperAdapter;
 import com.mamaevaleksej.audiorecorder.model.Record;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.RecorderAdapterViewHolder> {
+public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.RecorderAdapterViewHolder>
+        implements ItemTouchHelperAdapter {
+
+    public static final String TAG = RecorderAdapter.class.getSimpleName();
 
     private static final String DATE_FORMAT = "E, dd.MM.yyyy  h:m:s";
     final private ItemClickListener mListener;
@@ -60,6 +66,21 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
         return mRecords.size();
     }
 
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        return false;
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        Log.d(TAG, "++++++++++++++ inItemDismiss RecorderAdapter ++++++++");
+        Record record = mRecords.get(position);
+        AppRepository.getsInstance(mContext).deleteRecord(record.getId());
+        notifyDataSetChanged();
+        //        mRecords.remove(position);
+//        notifyItemRemoved(position);
+    }
+
     public interface ItemClickListener{
         void onItemClickListener(int itemId);
     }
@@ -73,6 +94,9 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
         notifyDataSetChanged();
     }
 
+    /**
+     * VIEW HOLDER
+     */
     class RecorderAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView recordNameTV;
