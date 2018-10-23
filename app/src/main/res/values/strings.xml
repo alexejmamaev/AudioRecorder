@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Audio Recorder</string>
+    <string name="app_name" translatable="false">Audio Recorder</string>
 
     <!--RecorderActivity-->
 
@@ -22,7 +22,7 @@
 
 
     <!--NotificationUtils-->
-    <string name="notification_title">"Audio Recorder"</string>
+    <string name="notification_title" translatable="false">"Audio Recorder"</string>
     <string name="notification_recording">"Recording...."</string>
     <string name="notification_stop_recording">"Stop"</string>
 

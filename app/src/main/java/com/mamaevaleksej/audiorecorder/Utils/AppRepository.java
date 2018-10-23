@@ -46,6 +46,11 @@ public class AppRepository {
         return mDb.Dao().loadAllRecords();
     }
 
+    public String getRecordFilePath(final int id){
+        Log.d(TAG, "Getting record by id: " + id + " !!!!!!!!!!!!!!!!!!");
+        return   mDb.Dao().getRecordById(id).getFilePath();
+    }
+
     public void deleteRecord(final int id){
         Log.d(TAG, "Deleting record id " + id + " !!!!!!!!!!!!!");
         AppExecutors.getInstance().diskIO().execute(new Runnable() {

@@ -1,7 +1,6 @@
 package com.mamaevaleksej.audiorecorder.sync;
 
 import android.app.Service;
-import android.arch.lifecycle.LiveData;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioRecord;
@@ -14,7 +13,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.mamaevaleksej.audiorecorder.Utils.AppExecutors;
 import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
@@ -26,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.List;
 
 public class RecordService extends Service {
 
@@ -184,14 +181,6 @@ public class RecordService extends Service {
         Record mRecord = new Record(mRecordedFilePath, date, 1);
 
         AppRepository.getsInstance(this).insertNewRecord(mRecord);
-
-        LiveData<List<Record>> rows = AppRepository.getsInstance(this).getAllRecordsList();
-        if (rows != null){
-            Log.d(TAG, "LIST SIZE ========> " + mRecord);
-        }
-
-        Log.d(TAG, "+++++++++++ " + mRecordedFilePath + " " + date);
-
 
             stopSelf();
     }

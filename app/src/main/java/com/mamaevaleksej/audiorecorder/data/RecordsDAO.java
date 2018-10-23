@@ -22,6 +22,9 @@ public interface RecordsDAO {
     @Query("DELETE FROM records WHERE id =:id")
     void deleteRecord(int id);
 
+    @Query("SELECT * FROM records WHERE id =:id")
+    Record getRecordById(int id);
+
     @Query("SELECT COUNT(*) FROM records")
     int count();
 

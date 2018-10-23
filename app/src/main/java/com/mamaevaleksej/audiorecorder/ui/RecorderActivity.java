@@ -171,9 +171,9 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             @Override
             public void onClick(View v) {
                 //Kicks off new Play service if Play service isn't running yet
-                if (!myServiceIsRunning(PlayService.class)) setPlayService();
-                else Log.d(TAG, "on Button click check: Service Play is running: -------> " +
-                        myServiceIsRunning(PlayService.class));
+//                if (!myServiceIsRunning(PlayService.class)) setPlayService();
+//                else Log.d(TAG, "on Button click check: Service Play is running: -------> " +
+//                        myServiceIsRunning(PlayService.class));
                 }
         });
 
@@ -221,8 +221,10 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
                 myServiceIsRunning(RecordService.class));
     }
 
-    private void setPlayService(){
+    private void setPlayService(int id){
         Intent playServiceIntent = new Intent(this, PlayService.class);
+        playServiceIntent.putExtra(PlayService.ID, id);
+
         startService(playServiceIntent);
         Log.d(TAG, "setPlayService Service Play is running: -------> " +
                 myServiceIsRunning(PlayService.class));
@@ -269,6 +271,9 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
 
     @Override
     public void onItemClickListener(int itemId) {
-
+        //Kicks off new Play service if Play service isn't running yet
+        if (!myServiceIsRunning(PlayService.class)) setPlayService(itemId);
+        else Log.d(TAG, "on Button click check: Service Play is running: -------> " +
+                myServiceIsRunning(PlayService.class));
     }
 }

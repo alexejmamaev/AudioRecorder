@@ -2,15 +2,14 @@ package com.mamaevaleksej.audiorecorder.sync;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
 import com.mamaevaleksej.audiorecorder.Utils.WavConverterUtils;
 
@@ -24,6 +23,9 @@ public class PlayService extends IntentService {
 
     private LocalBroadcastManager mBroadcastManager;
     public static final String ACTION_PLAY = "com.mamaevaleksej.audiorecorder.sync.PlayService";
+    public static final String ID = "current_record_id";
+
+    private int mRecordId;
 
     public PlayService() {
         super("PlayService");
@@ -31,6 +33,10 @@ public class PlayService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent != null){
+            mRecordId = intent.getIntExtra(ID, 0);
+        }
+
         reversePlayRecordedAudioFile();
     }
 
@@ -89,12 +95,14 @@ public class PlayService extends IntentService {
 
     // Returns the last recorded audio file by it's path
     private String getLastRecordedFilePath(){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences
-                (getApplicationContext());
-        String mRecordedFilePath = preferences.getString(Constants.RECORDED_FILE_PATH,
-                Constants.RECORDED_FILE_PATH_IS_MISSING);
-        return (mRecordedFilePath.equals
-                (Constants.RECORDED_FILE_PATH_IS_MISSING)) ? "" : mRecordedFilePath;
+//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences
+//                (getApplicationContext());
+//        String mRecordedFilePath = preferences.getString(Constants.RECORDED_FILE_PATH,
+//                Constants.RECORDED_FILE_PATH_IS_MISSING);
+//        return (mRecordedFilePath.equals
+//                (Constants.RECORDED_FILE_PATH_IS_MISSING)) ? "" : mRecordedFilePath;
+
+        return AppRepository.getsInstance(getApplicationContext()).getRecordFilePath(mRecordId);
     }
 
     @Override

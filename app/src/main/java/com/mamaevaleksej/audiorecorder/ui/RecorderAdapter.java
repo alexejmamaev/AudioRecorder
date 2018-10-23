@@ -14,6 +14,7 @@ import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
 import com.mamaevaleksej.audiorecorder.Utils.ItemTouchHelperAdapter;
 import com.mamaevaleksej.audiorecorder.model.Record;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -73,12 +74,14 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
 
     @Override
     public void onItemDismiss(int position) {
-        Log.d(TAG, "++++++++++++++ inItemDismiss RecorderAdapter ++++++++");
         Record record = mRecords.get(position);
         AppRepository.getsInstance(mContext).deleteRecord(record.getId());
         notifyDataSetChanged();
-        //        mRecords.remove(position);
-//        notifyItemRemoved(position);
+        File recordFile = new File(record.getFilePath());
+        boolean d = recordFile.delete();
+        if (d){
+            Log.d(TAG, "DELETED !!!!!!!!!");
+        }
     }
 
     public interface ItemClickListener{
