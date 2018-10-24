@@ -15,9 +15,9 @@ public class Record {
     @ColumnInfo(name = "record_finished_time")
     private java.util.Date recordTime;
     @ColumnInfo(name = "record_length")
-    private int recordLength;
+    private long recordLength;
 
-    public Record(int id, String filePath, java.util.Date recordTime, int recordLength) {
+    public Record(int id, String filePath, java.util.Date recordTime, long recordLength) {
         this.id = id;
         this.filePath = filePath;
         this.recordTime = recordTime;
@@ -25,7 +25,7 @@ public class Record {
     }
 
     @Ignore
-    public Record(String filePath, java.util.Date recordTime, int recordLength) {
+    public Record(String filePath, java.util.Date recordTime, long recordLength) {
         this.filePath = filePath;
         this.recordTime = recordTime;
         this.recordLength = recordLength;
@@ -55,7 +55,7 @@ public class Record {
         this.recordTime = recordTime;
     }
 
-    public int getRecordLength() {
+    public long getRecordLength() {
         return recordLength;
     }
 

@@ -2,7 +2,6 @@ package com.mamaevaleksej.audiorecorder.sync;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
@@ -10,9 +9,11 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.preference.PreferenceManager;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.widget.Chronometer;
 
 import com.mamaevaleksej.audiorecorder.Utils.AppExecutors;
 import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
@@ -34,6 +35,8 @@ public class RecordService extends Service {
 
     private LocalBroadcastManager mBroadcastManager;
     public static final String ACTION_RECORD = "com.mamaevaleksej.audiorecorder.sync.RecordService";
+
+    private Chronometer mChronometer;
 
     private AudioRecord mRecorder = null;
     private String mRecordedFilePath, mTempFilePath;
@@ -74,6 +77,7 @@ public class RecordService extends Service {
                 @Override
                 public void run() {
                     recordAudioFile();
+                    Log.d(TAG, "CHRONOMETER STARTS ======== >");
                     // Stops recording in 10 second period
                     mServiceHandler.postDelayed(new Runnable() {
                         @Override
@@ -102,6 +106,8 @@ public class RecordService extends Service {
     }
 
     private void recordAudioFile() {
+        mChronometer = new Chronometer(getApplicationContext());
+        mChronometer.start();
         mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 Constants.RECORDER_SAMPLERATE, Constants.RECORDER_CHANNELS,
                 Constants.RECORDER_AUDIO_ENCODING, Constants.BUFFER_SIZE);
@@ -160,6 +166,9 @@ public class RecordService extends Service {
             if (i == 1) mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
+            if (mChronometer != null){
+                mChronometer.stop();
+            }
         }
         mRecordedFilePath = WavConverterUtils.getFilePath();
         WavConverterUtils.copyWaveFile(WavConverterUtils.getTempFilename(), mRecordedFilePath, Constants.BUFFER_SIZE);
@@ -167,18 +176,20 @@ public class RecordService extends Service {
 
         java.util.Date date = Calendar.getInstance().getTime();
 
+        long recordLengthInMlls = (SystemClock.elapsedRealtime() - mChronometer.getBase());
+
         Intent intent1 = new Intent(ACTION_RECORD);
         intent1.putExtra(Constants.RECORDED_FILE_PATH, mRecordedFilePath);
         mBroadcastManager.sendBroadcast(intent1);
 
-        // Put recorded file path to preferences
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(Constants.RECORDED_FILE_PATH, mRecordedFilePath);
-        editor.apply();
+//         Put recorded file path to preferences
+//        SharedPreferences preferences = PreferenceManager
+//                .getDefaultSharedPreferences(this);
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putString(Constants.RECORDED_FILE_PATH, mRecordedFilePath);
+//        editor.apply();
 
-        Record mRecord = new Record(mRecordedFilePath, date, 1);
+        Record mRecord = new Record(mRecordedFilePath, date, recordLengthInMlls);
 
         AppRepository.getsInstance(this).insertNewRecord(mRecord);
 

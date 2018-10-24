@@ -3,7 +3,6 @@ package com.mamaevaleksej.audiorecorder.ui;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.RecorderAdapterViewHolder>
         implements ItemTouchHelperAdapter {
@@ -49,11 +49,17 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
 
         // Выводит путь файла в TextView
         String filePath = record.getFilePath();
-        viewHolder.recordNameTV.setText(filePath);
+        viewHolder.recordNameTV.setText(new File(filePath).getName());
 
-        int recordLength = record.getRecordLength();
-        viewHolder.recordLengthTV.setText(recordLength + "");
+        // Длительность записи
+        long recordLength = record.getRecordLength();
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(recordLength);
+        String formattedLength = String.format(Locale.getDefault(), "%2d sec : %2d mil",
+                seconds,
+                recordLength - TimeUnit.SECONDS.toMillis(seconds));
+        viewHolder.recordLengthTV.setText(formattedLength);
 
+        // Дата записи
         java.util.Date recordTime = record.getRecordTime();
         viewHolder.recordTimeTV.setText(dateFormat.format(recordTime));
 
@@ -78,10 +84,7 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
         AppRepository.getsInstance(mContext).deleteRecord(record.getId());
         notifyDataSetChanged();
         File recordFile = new File(record.getFilePath());
-        boolean d = recordFile.delete();
-        if (d){
-            Log.d(TAG, "DELETED !!!!!!!!!");
-        }
+        recordFile.delete();
     }
 
     public interface ItemClickListener{

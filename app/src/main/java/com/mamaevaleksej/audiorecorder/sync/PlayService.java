@@ -24,6 +24,7 @@ public class PlayService extends IntentService {
     private LocalBroadcastManager mBroadcastManager;
     public static final String ACTION_PLAY = "com.mamaevaleksej.audiorecorder.sync.PlayService";
     public static final String ID = "current_record_id";
+    private MediaPlayer mMediaPlayer;
 
     private int mRecordId;
 
@@ -44,12 +45,12 @@ public class PlayService extends IntentService {
     private void playRecordedAudioFile(){
         if (!isPlaying){
             isPlaying = true;
-            MediaPlayer mediaPlayer = new MediaPlayer();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer = new MediaPlayer();
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
-                mediaPlayer.setDataSource(getLastRecordedFilePath());
-                mediaPlayer.prepare();
-                mediaPlayer.start();
+                mMediaPlayer.setDataSource(getLastRecordedFilePath());
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -109,6 +110,11 @@ public class PlayService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
         isPlaying = false;
+        if (mMediaPlayer != null) {
+            Log.d(TAG, "MEDIA PLAYER IS NOT NULL ===============!!!!!");
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+        }
         Log.d(TAG, "Play Service onDestoy called >>>>>>>>>>>");
     }
 }
