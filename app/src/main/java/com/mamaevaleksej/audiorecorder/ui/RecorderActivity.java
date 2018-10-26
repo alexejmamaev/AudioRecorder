@@ -36,9 +36,9 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
 
     private final String TAG = RecorderActivity.class.getSimpleName();
 //    public static final String ACTION = "com.mamaevaleksej.audiorecorder.ui.RecorderActivity";
+    private RecorderActivityViewModel mViewModel;
     private Toast mToast;
     private Button mButtonSave, mButtonPlay;
-    private boolean isRecording = false;
     private RecyclerView mRecyclerView;
     private RecorderAdapter mAdapter;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO,
@@ -51,7 +51,7 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             // Set up actions upon callback from Record service
             if (intent.getAction().equals(RecordService.ACTION_RECORD)){
                 String mRecordedFilePath = intent.getStringExtra(Constants.RECORDED_FILE_PATH);
-                isRecording = false;
+                mViewModel.setRecording(false);
                 mButtonSave.setText(R.string.button_save);
                 if (mToast != null) mToast.cancel();
                 String toastMssg = String.format(getString(R.string.recording_finished), mRecordedFilePath);
@@ -75,24 +75,14 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recorder);
 
+        setupViewModel();
+
         initViews();
 
         // SetUp swipe deletion
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(mAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(mRecyclerView);
-
-
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(Constants.IS_RECORDING)){
-                isRecording = savedInstanceState.getBoolean(Constants.IS_RECORDING);
-                if (isRecording){
-                    mButtonSave.setText(R.string.button_stop);
-                } else {
-                    mButtonSave.setText(R.string.button_save);
-                }
-            }
-        }
 
         // Register BroadcastReceiver
         IntentFilter filter = new IntentFilter();
@@ -111,14 +101,6 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             mButtonSave.setText(R.string.button_save);
         }
 
-        setupViewModel();
-
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(Constants.IS_RECORDING, isRecording);
-        super.onSaveInstanceState(outState);
     }
 
     //    Initialize this Activity views
@@ -126,6 +108,12 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
 
         /* Set save button */
         mButtonSave = findViewById(R.id.buttonRecord);
+
+        if (mViewModel.isRecording()){
+            mButtonSave.setText(R.string.button_stop);
+        } else {
+            mButtonSave.setText(R.string.button_save);
+        }
 
         mButtonSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,17 +125,17 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
                                 Constants.REQUEST_PERMISSIONS);
                     } else {
                         // Kicks off new Record service if one hasn't been started before
-                        if (!isRecording) {
-                            isRecording = true;
+                        if (!mViewModel.isRecording()){
+                            mViewModel.setRecording(true);
                             mButtonSave.setText(R.string.button_stop);
                             setRecordService();
                         } else {
                             // Passes negative flag to the running Record service in order to stop it
                             mButtonSave.setText(R.string.button_save);
-                            isRecording = false;
+                            mViewModel.setRecording(false);
                             setRecordService();
 //                            Intent stopRecordingIntent = new Intent(ACTION);
-//                            stopRecordingIntent.putExtra(Constants.IS_RECORDING, isRecording);
+//                            stopRecordingIntent.putExtra(Constants.IS_RECORDING, mViewModel.isRecording());
 //                            LocalBroadcastManager.getInstance(RecorderActivity.this)
 //                                    .sendBroadcast(stopRecordingIntent);
 //                            Log.d(TAG, "Sending broadcast from Activity **********");
@@ -185,9 +173,9 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
     }
 
     private void setupViewModel(){
-        final RecorderActivityViewModel viewModel = ViewModelProviders.of(this)
+        mViewModel = ViewModelProviders.of(this)
                 .get(RecorderActivityViewModel.class);
-        viewModel.getRecords().observe(this, new Observer<List<Record>>() {
+        mViewModel.getRecords().observe(this, new Observer<List<Record>>() {
             @Override
             public void onChanged(@Nullable List<Record> records) {
                 Log.d(TAG, "Updating list of records from LiveData in ViewModel **********");
@@ -215,7 +203,7 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
 
     private void setRecordService(){
         Intent intent = new Intent(this, RecordService.class);
-        intent.putExtra(Constants.IS_RECORDING, isRecording);
+        intent.putExtra(Constants.IS_RECORDING, mViewModel.isRecording());
         startService(intent);
         Log.d(TAG, "setRecordService Service Record is running: -------> " +
                 myServiceIsRunning(RecordService.class));
@@ -252,7 +240,7 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             Log.d(TAG, "App is killed >>>>>>>>>>>");
             // Stops Record Service
            if (myServiceIsRunning(RecordService.class)){
-               isRecording = false;
+               mViewModel.setRecording(false);
                setRecordService();
            }
             // Stops Play Service
