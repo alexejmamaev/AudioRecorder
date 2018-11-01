@@ -19,14 +19,13 @@ import java.io.IOException;
 public class PlayService extends IntentService {
 
     private static final String TAG = PlayService.class.getSimpleName();
-    private boolean isPlaying = false;
-
-    private LocalBroadcastManager mBroadcastManager;
     public static final String ACTION_PLAY = "com.mamaevaleksej.audiorecorder.sync.PlayService";
     public static final String ID = "current_record_id";
     private MediaPlayer mMediaPlayer;
 
     private int mRecordId;
+
+    private AudioTrack mAudioTrack;
 
     public PlayService() {
         super("PlayService");
@@ -37,14 +36,11 @@ public class PlayService extends IntentService {
         if (intent != null){
             mRecordId = intent.getIntExtra(ID, 0);
         }
-
         reversePlayRecordedAudioFile();
     }
 
     // Kicks off straight play of the recorded file
     private void playRecordedAudioFile(){
-        if (!isPlaying){
-            isPlaying = true;
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
@@ -54,7 +50,6 @@ public class PlayService extends IntentService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
     }
 
     // Kicks off reverse play of the recorded file
@@ -63,35 +58,26 @@ public class PlayService extends IntentService {
         // Checks if the file exists (file path is valid)
         final File file = new File(getLastRecordedFilePath());
         if (!file.exists()){
-            isPlaying = false;
             // Send broadcast indicating that file path is invalid (file doesn't exist)
-            mBroadcastManager = LocalBroadcastManager.getInstance(this);
+            LocalBroadcastManager mBroadcastManager = LocalBroadcastManager.getInstance(this);
             Intent noFileIntent = new Intent(ACTION_PLAY);
             mBroadcastManager.sendBroadcast(noFileIntent);
             stopSelf();
             return;
         }
 
-        if (!isPlaying) {
-            isPlaying = true;
-
             int minBufferSize = AudioTrack.getMinBufferSize(Constants.RECORDER_SAMPLERATE,
                     Constants.RECORDER_CHANNELS, Constants.RECORDER_AUDIO_ENCODING);
 
-            final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, Constants.RECORDER_SAMPLERATE,
+            mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, Constants.RECORDER_SAMPLERATE,
                     Constants.RECORDER_CHANNELS, Constants.RECORDER_AUDIO_ENCODING, minBufferSize,
                     AudioTrack.MODE_STREAM);
 
-            while (isPlaying) {
                 // Checks when audio track stop playing
-                boolean playbackFinished = WavConverterUtils.playReverse(file, audioTrack);
+            boolean playbackFinished = WavConverterUtils.playReverse(file, mAudioTrack);
                 if (playbackFinished){
-                    audioTrack.stop();
-                    audioTrack.release();
-                    isPlaying = false;
-                }
-            }
-        }
+                    stopSelf();
+                    }
     }
 
     // Returns the last recorded audio file by it's path
@@ -109,11 +95,14 @@ public class PlayService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        isPlaying = false;
         if (mMediaPlayer != null) {
-            Log.d(TAG, "MEDIA PLAYER IS NOT NULL ===============!!!!!");
             mMediaPlayer.stop();
             mMediaPlayer.release();
+        }
+
+        if (mAudioTrack != null && mAudioTrack.getState() == AudioTrack.STATE_INITIALIZED){
+            mAudioTrack.stop();
+            mAudioTrack.release();
         }
         Log.d(TAG, "Play Service onDestoy called >>>>>>>>>>>");
     }

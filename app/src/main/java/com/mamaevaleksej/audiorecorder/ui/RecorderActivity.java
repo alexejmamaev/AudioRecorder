@@ -89,18 +89,6 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         filter.addAction(RecordService.ACTION_RECORD);
         filter.addAction(PlayService.ACTION_PLAY);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-
-        Log.d(TAG, "On create Service Record is running: -------> " +
-                myServiceIsRunning(RecordService.class));
-        Log.d(TAG, "On create Service Play is running: -------> " +
-                myServiceIsRunning(PlayService.class));
-
-        if (myServiceIsRunning(RecordService.class)){
-            mButtonSave.setText(R.string.button_stop);
-        } else {
-            mButtonSave.setText(R.string.button_save);
-        }
-
     }
 
     //    Initialize this Activity views
@@ -260,8 +248,11 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
     @Override
     public void onItemClickListener(int itemId) {
         //Kicks off new Play service if Play service isn't running yet
-        if (!myServiceIsRunning(PlayService.class)) setPlayService(itemId);
-        else Log.d(TAG, "on Button click check: Service Play is running: -------> " +
-                myServiceIsRunning(PlayService.class));
+        if (myServiceIsRunning(PlayService.class)){
+            Log.d(TAG, "on Button click check: Service Play is running: -------> " +
+                    myServiceIsRunning(PlayService.class));
+            stopService(new Intent(this, PlayService.class));
+        }
+            setPlayService(itemId);
     }
 }
