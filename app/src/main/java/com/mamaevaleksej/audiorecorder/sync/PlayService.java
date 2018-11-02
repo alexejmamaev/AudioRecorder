@@ -89,7 +89,7 @@ public class PlayService extends IntentService {
 //        return (mRecordedFilePath.equals
 //                (Constants.RECORDED_FILE_PATH_IS_MISSING)) ? "" : mRecordedFilePath;
 
-        return AppRepository.getsInstance(getApplicationContext()).getRecordFilePath(mRecordId);
+        return AppRepository.getsInstance(this).getRecordFilePath(mRecordId);
     }
 
     @Override

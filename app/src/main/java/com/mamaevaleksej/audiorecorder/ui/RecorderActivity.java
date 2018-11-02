@@ -1,7 +1,6 @@
 package com.mamaevaleksej.audiorecorder.ui;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
@@ -24,6 +23,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.mamaevaleksej.audiorecorder.R;
+import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
 import com.mamaevaleksej.audiorecorder.Utils.ItemTouchHelperCallback;
 import com.mamaevaleksej.audiorecorder.model.Record;
@@ -35,10 +35,9 @@ import java.util.List;
 public class RecorderActivity extends AppCompatActivity implements RecorderAdapter.ItemClickListener {
 
     private final String TAG = RecorderActivity.class.getSimpleName();
-//    public static final String ACTION = "com.mamaevaleksej.audiorecorder.ui.RecorderActivity";
     private RecorderActivityViewModel mViewModel;
     private Toast mToast;
-    private Button mButtonSave, mButtonPlay;
+    private Button mButtonSave;
     private RecyclerView mRecyclerView;
     private RecorderAdapter mAdapter;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO,
@@ -122,11 +121,6 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
                             mButtonSave.setText(R.string.button_save);
                             mViewModel.setRecording(false);
                             setRecordService();
-//                            Intent stopRecordingIntent = new Intent(ACTION);
-//                            stopRecordingIntent.putExtra(Constants.IS_RECORDING, mViewModel.isRecording());
-//                            LocalBroadcastManager.getInstance(RecorderActivity.this)
-//                                    .sendBroadcast(stopRecordingIntent);
-//                            Log.d(TAG, "Sending broadcast from Activity **********");
                         }
                     }
 
@@ -142,14 +136,13 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         });
 
         /* Set play button */
-        mButtonPlay = findViewById(R.id.buttonPlay);
+        Button mButtonPlay = findViewById(R.id.buttonPlay);
         mButtonPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Kicks off new Play service if Play service isn't running yet
-//                if (!myServiceIsRunning(PlayService.class)) setPlayService();
-//                else Log.d(TAG, "on Button click check: Service Play is running: -------> " +
-//                        myServiceIsRunning(PlayService.class));
+                if (mViewModel.getItemID() != 0)
+                    setPlayService(mViewModel.getItemID());
                 }
         });
 
@@ -166,10 +159,14 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         mViewModel.getRecords().observe(this, new Observer<List<Record>>() {
             @Override
             public void onChanged(@Nullable List<Record> records) {
-                Log.d(TAG, "Updating list of records from LiveData in ViewModel **********");
                 mAdapter.setmRecords(records);
             }
         });
+    }
+
+    @Override
+    public void onItemClickListener(int itemId) {
+        setPlayService(itemId);
     }
 
     //    Checks whether the device has microphone or not
@@ -194,27 +191,22 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         intent.putExtra(Constants.IS_RECORDING, mViewModel.isRecording());
         startService(intent);
         Log.d(TAG, "setRecordService Service Record is running: -------> " +
-                myServiceIsRunning(RecordService.class));
+                AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class));
     }
 
     private void setPlayService(int id){
+        mViewModel.setItemID(id);
+        //Kicks off new Play service if Play service isn't running yet
+        if (AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)){
+            stopService(new Intent(this, PlayService.class));
+        }
+
         Intent playServiceIntent = new Intent(this, PlayService.class);
         playServiceIntent.putExtra(PlayService.ID, id);
 
         startService(playServiceIntent);
         Log.d(TAG, "setPlayService Service Play is running: -------> " +
-                myServiceIsRunning(PlayService.class));
-    }
-
-    // Helper method to check if service is running
-    private boolean myServiceIsRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
+                AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class));
     }
 
     @Override
@@ -227,12 +219,12 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             }
             Log.d(TAG, "App is killed >>>>>>>>>>>");
             // Stops Record Service
-           if (myServiceIsRunning(RecordService.class)){
+           if (AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class)){
                mViewModel.setRecording(false);
                setRecordService();
            }
             // Stops Play Service
-            if (myServiceIsRunning(PlayService.class)){
+            if (AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)){
                 stopService(new Intent(this, PlayService.class));
             }
             // Unregister BroadcastReceiver
@@ -243,16 +235,5 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         else {
             Log.d(TAG, "Orientation change >>>>>>>>>>>>");
         }
-    }
-
-    @Override
-    public void onItemClickListener(int itemId) {
-        //Kicks off new Play service if Play service isn't running yet
-        if (myServiceIsRunning(PlayService.class)){
-            Log.d(TAG, "on Button click check: Service Play is running: -------> " +
-                    myServiceIsRunning(PlayService.class));
-            stopService(new Intent(this, PlayService.class));
-        }
-            setPlayService(itemId);
     }
 }
