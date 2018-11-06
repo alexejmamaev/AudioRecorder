@@ -12,6 +12,7 @@ import android.util.Log;
 import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
 import com.mamaevaleksej.audiorecorder.Utils.WavConverterUtils;
+import com.mamaevaleksej.audiorecorder.model.Record;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,10 @@ public class PlayService extends IntentService {
 
     // Kicks off straight play of the recorded file
     private void playRecordedAudioFile(){
+        if (notValidFilePath()) {
+            stopSelf();
+            return;
+        }
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
@@ -54,17 +59,11 @@ public class PlayService extends IntentService {
 
     // Kicks off reverse play of the recorded file
     private void reversePlayRecordedAudioFile() {
-
-        // Checks if the file exists (file path is valid)
-        final File file = new File(getLastRecordedFilePath());
-        if (!file.exists()){
-            // Send broadcast indicating that file path is invalid (file doesn't exist)
-            LocalBroadcastManager mBroadcastManager = LocalBroadcastManager.getInstance(this);
-            Intent noFileIntent = new Intent(ACTION_PLAY);
-            mBroadcastManager.sendBroadcast(noFileIntent);
+        if (notValidFilePath()) {
             stopSelf();
             return;
         }
+        final File file = new File(getLastRecordedFilePath());
 
             int minBufferSize = AudioTrack.getMinBufferSize(Constants.RECORDER_SAMPLERATE,
                     Constants.RECORDER_CHANNELS, Constants.RECORDER_AUDIO_ENCODING);
@@ -89,7 +88,34 @@ public class PlayService extends IntentService {
 //        return (mRecordedFilePath.equals
 //                (Constants.RECORDED_FILE_PATH_IS_MISSING)) ? "" : mRecordedFilePath;
 
-        return AppRepository.getsInstance(this).getRecordFilePath(mRecordId);
+        Record record = AppRepository.getsInstance(this).getRecordFilePath(mRecordId);
+        if (record == null) {
+            return null;
+        }
+        return record.getFilePath();
+    }
+
+    private boolean notValidFilePath(){
+        // Checks if the DB contains file path
+        if (getLastRecordedFilePath() == null){
+            sendFileNotExistMessage();
+            return true;
+        }
+        final File file = new File(getLastRecordedFilePath());
+        // Checks if the file exists (file path is valid)
+        if (!file.exists()){
+            sendFileNotExistMessage();
+            return true;
+        }
+        return false;
+    }
+
+    private void sendFileNotExistMessage(){
+        // Send broadcast indicating that file path is invalid (file doesn't exist)
+        LocalBroadcastManager mBroadcastManager = LocalBroadcastManager.getInstance(this);
+        Intent noFileIntent = new Intent(ACTION_PLAY);
+        mBroadcastManager.sendBroadcast(noFileIntent);
+        stopSelf();
     }
 
     @Override

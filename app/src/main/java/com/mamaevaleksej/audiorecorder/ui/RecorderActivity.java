@@ -88,6 +88,11 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         filter.addAction(RecordService.ACTION_RECORD);
         filter.addAction(PlayService.ACTION_PLAY);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+
+        Log.d(TAG, "RecordService is running ==============>>> "
+                + AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class));
+        Log.d(TAG, "PlayService is running ==============>>> "
+                + AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class));
     }
 
     //    Initialize this Activity views

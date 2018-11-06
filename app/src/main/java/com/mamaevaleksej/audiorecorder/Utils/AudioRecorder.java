@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Environment;
-import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Chronometer;
 
 import com.mamaevaleksej.audiorecorder.model.Record;
 import com.mamaevaleksej.audiorecorder.sync.NotificationTask;
@@ -27,8 +25,8 @@ public class AudioRecorder {
     private static AudioRecorder sInstance;
     private static final Object LOCK = new Object();
     private AudioRecord mAudioRecord;
-    private Chronometer mChronometer;
     private boolean isRecording;
+    private long mStartTime;
 
     private AudioRecorder(){
         this.mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
@@ -45,19 +43,17 @@ public class AudioRecorder {
         return sInstance;
     }
 
-    public void recordAudioFile(Context context) {
+    public void recordAudioFile(long startTime) {
         if (mAudioRecord != null){
             mAudioRecord.stop();
             mAudioRecord.release();
             mAudioRecord = null;
         }
         isRecording = true;
+        mStartTime = startTime;
         mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 Constants.RECORDER_SAMPLERATE, Constants.RECORDER_CHANNELS,
                 Constants.RECORDER_AUDIO_ENCODING, Constants.BUFFER_SIZE);
-
-        mChronometer = new Chronometer(context);
-        mChronometer.start();
 
         int i = mAudioRecord.getState();
         if (i == 1) mAudioRecord.startRecording();
@@ -110,9 +106,6 @@ public class AudioRecorder {
             if (i == 1) mAudioRecord.stop();
             mAudioRecord.release();
             mAudioRecord = null;
-            if (mChronometer != null){
-                mChronometer.stop();
-            }
         }
         String mRecordedFilePath = getFilePath();
         copyWaveFile(getTempFilename(), mRecordedFilePath, Constants.BUFFER_SIZE);
@@ -120,7 +113,7 @@ public class AudioRecorder {
 
         java.util.Date date = Calendar.getInstance().getTime();
 
-        long recordLengthInMlls = (SystemClock.elapsedRealtime() - mChronometer.getBase());
+        long recordLengthInMlls = (System.currentTimeMillis() - mStartTime);
 
         LocalBroadcastManager mBroadcastManager = LocalBroadcastManager.getInstance(context);
 
@@ -133,6 +126,8 @@ public class AudioRecorder {
         AppRepository.getsInstance(context).insertNewRecord(mRecord);
 
         context.stopService(new Intent(context, RecordService.class));
+        Log.d(TAG, "RecordService is running ==============>>> "
+                + AppRepository.getsInstance(context).myServiceIsRunning(context, RecordService.class));
     }
 
     private static String getFilePath(){
