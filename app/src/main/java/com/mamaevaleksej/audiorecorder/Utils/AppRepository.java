@@ -16,7 +16,6 @@ public class AppRepository {
     private static AppRepository sInstance;
     private static final Object LOCK = new Object();
     private AppDatabase mDb;
-    private List<Record> mRecordsList;
 
     private AppRepository(Context context) {
         this.mDb = AppDatabase.getsInstance(context);
@@ -47,9 +46,9 @@ public class AppRepository {
         return mDb.Dao().loadAllRecords();
     }
 
-    public String getRecordFilePath(final int id){
+    public Record getRecordFilePath(final int id){
         Log.d(TAG, "Getting record by id: " + id + " !!!!!!!!!!!!!!!!!!");
-        return   mDb.Dao().getRecordById(id).getFilePath();
+        return mDb.Dao().getRecordById(id);
     }
 
     public void deleteRecord(final int id){
