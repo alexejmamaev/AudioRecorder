@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.Utils;
+package com.mamaevaleksej.audiorecorder.ui;
 
 public interface ItemTouchHelperAdapter {
 

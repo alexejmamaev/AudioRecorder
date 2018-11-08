@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.mamaevaleksej.audiorecorder.R;
 import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
-import com.mamaevaleksej.audiorecorder.Utils.ItemTouchHelperAdapter;
 import com.mamaevaleksej.audiorecorder.model.Record;
 
 import java.io.File;

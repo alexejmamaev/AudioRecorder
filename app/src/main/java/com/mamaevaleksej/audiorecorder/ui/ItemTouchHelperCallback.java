@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.Utils;
+package com.mamaevaleksej.audiorecorder.ui;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

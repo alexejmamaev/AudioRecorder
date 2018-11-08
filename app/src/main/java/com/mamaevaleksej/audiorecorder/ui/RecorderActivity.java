@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.mamaevaleksej.audiorecorder.R;
 import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
 import com.mamaevaleksej.audiorecorder.Utils.Constants;
-import com.mamaevaleksej.audiorecorder.Utils.ItemTouchHelperCallback;
 import com.mamaevaleksej.audiorecorder.model.Record;
 import com.mamaevaleksej.audiorecorder.sync.PlayService;
 import com.mamaevaleksej.audiorecorder.sync.RecordService;
@@ -218,18 +217,18 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
     protected void onDestroy() {
         super.onDestroy();
         // Called if the app is killed
-        if (isFinishing()){
-            if (mToast != null){
+        if (isFinishing()) {
+            if (mToast != null) {
                 mToast.cancel();
             }
             Log.d(TAG, "App is killed >>>>>>>>>>>");
             // Stops Record Service
-           if (AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class)){
-               mViewModel.setRecording(false);
-               setRecordService();
-           }
+            if (AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class)) {
+                mViewModel.setRecording(false);
+                setRecordService();
+            }
             // Stops Play Service
-            if (AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)){
+            if (AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)) {
                 stopService(new Intent(this, PlayService.class));
             }
             // Unregister BroadcastReceiver
@@ -241,4 +240,9 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             Log.d(TAG, "Orientation change >>>>>>>>>>>>");
         }
     }
+    //    TODO(1) Add menu (from the beginning / reverse / delete all records)
+    //    TODO(2) Add Loader spinner on the DB query
+    //    TODO(3) Highlight selected item in the RecyclerView
+    //    TODO(4) Add deletion icon when item is swiped
+    //    TODO(5) Add JobDispatcher to remind user to listen to the recorded file
 }
