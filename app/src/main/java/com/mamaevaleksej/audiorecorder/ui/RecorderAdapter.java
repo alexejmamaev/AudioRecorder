@@ -87,7 +87,7 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
     }
 
     public interface ItemClickListener{
-        void onItemClickListener(int itemId);
+        void onItemClickListener(Record record);
     }
 
     public List<Record> getmRecords(){
@@ -124,8 +124,7 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
          */
         @Override
         public void onClick(View v) {
-            int id = mRecords.get(getAdapterPosition()).getId();
-            mListener.onItemClickListener(id);
+            mListener.onItemClickListener(mRecords.get(getAdapterPosition()));
         }
     }
 }

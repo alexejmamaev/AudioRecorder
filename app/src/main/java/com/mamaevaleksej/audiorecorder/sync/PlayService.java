@@ -10,8 +10,10 @@ import com.mamaevaleksej.audiorecorder.Utils.AudioTrackPlayer;
 public class PlayService extends IntentService {
 
     private static final String TAG = PlayService.class.getSimpleName();
-    public static final String ACTION_PLAY = "com.mamaevaleksej.audiorecorder.sync.PlayService";
     public static final String ID = "current_record_id";
+    public static final String ACTION_TRACK_IS_PLAYING = "track_is_playing";
+    public static final String ACTION_TRACK_STOPPED_PLAYING = "track_stopped_playing";
+    public static final String ACTION_FILE_NOT_FOUND = "file_not_found";
 
     private int mRecordId;
 
@@ -30,7 +32,6 @@ public class PlayService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        AudioTrackPlayer.stopPlaying();
         Log.d(TAG, "Play Service onDestoy called >>>>>>>>>>>");
     }
 }

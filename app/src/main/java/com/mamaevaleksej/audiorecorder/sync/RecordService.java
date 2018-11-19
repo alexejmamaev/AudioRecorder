@@ -53,13 +53,8 @@ public class RecordService extends Service {
                 public void run() {
                     AudioRecorder.getsInstance().recordAudioFile(System.currentTimeMillis());
                     // Stops recording in 10 second period
-                    mServiceHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            AudioRecorder.getsInstance()
-                                    .stopRecordAudioFile(RecordService.this);
-                        }
-                    }, 10000);
+                    mServiceHandler.postDelayed(() -> AudioRecorder.getsInstance()
+                            .stopRecordAudioFile(RecordService.this), 10000);
                 }
             };
             mServiceHandler.post(mRecordRunnable);

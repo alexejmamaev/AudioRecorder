@@ -3,6 +3,7 @@ package com.mamaevaleksej.audiorecorder.ui;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
@@ -15,7 +16,8 @@ public class RecorderActivityViewModel extends AndroidViewModel {
     private static final String TAG = RecorderActivityViewModel.class.getSimpleName();
     private LiveData<List<Record>> mRecordsList;
     private boolean isRecording;
-    private int itemID = 0;
+    private int itemID = 0; // current record id, stored in the Room db;
+    public final MutableLiveData<Record> record = new MutableLiveData<>();
 
     public RecorderActivityViewModel(@NonNull Application application) {
         super(application);
@@ -41,5 +43,13 @@ public class RecorderActivityViewModel extends AndroidViewModel {
 
     public void setItemID(int itemID) {
         this.itemID = itemID;
+    }
+
+    public LiveData<Record> getRecord(){
+        return record;
+    }
+
+    public void setRecord(Record record){
+        this.record.setValue(record);
     }
 }

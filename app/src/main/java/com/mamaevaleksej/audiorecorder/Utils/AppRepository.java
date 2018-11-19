@@ -46,7 +46,7 @@ public class AppRepository {
         return mDb.Dao().loadAllRecords();
     }
 
-    public Record getRecordFilePath(final int id){
+    public Record getRecord(final int id){
         Log.d(TAG, "Getting record by id: " + id + " !!!!!!!!!!!!!!!!!!");
         return mDb.Dao().getRecordById(id);
     }
