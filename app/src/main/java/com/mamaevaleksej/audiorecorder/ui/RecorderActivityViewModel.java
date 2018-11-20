@@ -17,6 +17,7 @@ public class RecorderActivityViewModel extends AndroidViewModel {
     private LiveData<List<Record>> mRecordsList;
     private boolean isRecording;
     private int itemID = 0; // current record id, stored in the Room db;
+    private int listSize;
     public final MutableLiveData<Record> record = new MutableLiveData<>();
 
     public RecorderActivityViewModel(@NonNull Application application) {
@@ -51,5 +52,13 @@ public class RecorderActivityViewModel extends AndroidViewModel {
 
     public void setRecord(Record record){
         this.record.setValue(record);
+    }
+
+    public int getListSize() {
+        return listSize;
+    }
+
+    public void setListSize(int listSize) {
+        this.listSize = listSize;
     }
 }

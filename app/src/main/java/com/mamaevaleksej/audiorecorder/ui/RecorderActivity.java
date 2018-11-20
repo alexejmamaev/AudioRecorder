@@ -18,7 +18,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.mamaevaleksej.audiorecorder.R;
@@ -34,6 +36,7 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
     private RecorderActivityViewModel mViewModel;
     private Toast mToast;
     private Button mButtonSave;
+    private ProgressBar mLoadingIndicator;
     private RecyclerView mRecyclerView;
     private RecorderAdapter mAdapter;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO,
@@ -177,15 +180,27 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
 
         mRecyclerView = findViewById(R.id.recyclerview_records);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setHasFixedSize(true);
         mAdapter = new RecorderAdapter(this, this);
         mRecyclerView.setAdapter(mAdapter);
+        mLoadingIndicator = findViewById(R.id.loading_indicator);
 
     }
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this)
                 .get(RecorderActivityViewModel.class);
-        mViewModel.getRecords().observe(this, records -> mAdapter.setmRecords(records));
+        mViewModel.getRecords().observe(this, records -> {
+            if (records != null){
+                mAdapter.setmRecords(records);
+                if (mViewModel.getListSize() != records.size()){
+                    mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount());
+                    mViewModel.setListSize(records.size());
+                }
+                if(records.size() != 0) showRecordsList();
+                else showLoading();
+            }
+        });
     }
 
     @Override
@@ -232,6 +247,16 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         startService(playServiceIntent);
     }
 
+    private void showLoading(){
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    private void showRecordsList(){
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -260,7 +285,6 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         }
     }
     //    TODO(1) Add menu (from the beginning / reverse / delete all records)
-    //    TODO(2) Add Loader spinner on the DB query
     //    TODO(3) Highlight selected item in the RecyclerView
     //    TODO(4) Add deletion icon when item is swiped
     //    TODO(5) Add JobDispatcher to remind user to listen to the recorded file
