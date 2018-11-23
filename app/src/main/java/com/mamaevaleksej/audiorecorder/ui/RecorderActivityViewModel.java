@@ -1,28 +1,24 @@
 package com.mamaevaleksej.audiorecorder.ui;
 
-import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.NonNull;
+import android.arch.lifecycle.ViewModel;
 
-import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
-import com.mamaevaleksej.audiorecorder.model.Record;
+import com.mamaevaleksej.audiorecorder.data.AppRepository;
+import com.mamaevaleksej.audiorecorder.data.Record;
 
 import java.util.List;
 
-public class RecorderActivityViewModel extends AndroidViewModel {
+public class RecorderActivityViewModel extends ViewModel {
 
     private static final String TAG = RecorderActivityViewModel.class.getSimpleName();
     private LiveData<List<Record>> mRecordsList;
     private boolean isRecording;
     private int itemID = 0; // current record id, stored in the Room db;
-    private int listSize;
-    public final MutableLiveData<Record> record = new MutableLiveData<>();
+    private int listSize; // size of the list to check if it
+    private final MutableLiveData<Record> record = new MutableLiveData<>();
 
-    public RecorderActivityViewModel(@NonNull Application application) {
-        super(application);
-        AppRepository repository = AppRepository.getsInstance(application);
+    public RecorderActivityViewModel(AppRepository repository) {
         mRecordsList = repository.getAllRecordsList();
     }
 

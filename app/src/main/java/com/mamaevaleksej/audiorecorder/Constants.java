@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.Utils;
+package com.mamaevaleksej.audiorecorder;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;

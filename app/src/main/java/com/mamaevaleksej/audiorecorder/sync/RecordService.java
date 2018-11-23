@@ -10,8 +10,8 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.mamaevaleksej.audiorecorder.Utils.AudioRecorder;
-import com.mamaevaleksej.audiorecorder.Utils.Constants;
+import com.mamaevaleksej.audiorecorder.Constants;
+import com.mamaevaleksej.audiorecorder.Utils.InjectorUtils;
 
 public class RecordService extends Service {
 
@@ -19,6 +19,8 @@ public class RecordService extends Service {
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
     public static final String ACTION_RECORD = "com.mamaevaleksej.audiorecorder.sync.RecordService";
+    private AudioRecorder mRecorder;
+
 
     private final class ServiceHandler extends Handler{
 
@@ -39,6 +41,7 @@ public class RecordService extends Service {
         mHandlerThread = new HandlerThread("RecordService.HandlerThread");
         mHandlerThread.start();
         mServiceHandler = new ServiceHandler(mHandlerThread.getLooper());
+        mRecorder = InjectorUtils.provideAudioRecorder(this.getApplicationContext());
     }
 
     @Override
@@ -51,16 +54,15 @@ public class RecordService extends Service {
             final Runnable mRecordRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    AudioRecorder.getsInstance().recordAudioFile(System.currentTimeMillis());
+                    mRecorder.recordAudioFile();
                     // Stops recording in 10 second period
-                    mServiceHandler.postDelayed(() -> AudioRecorder.getsInstance()
-                            .stopRecordAudioFile(RecordService.this), 10000);
+                    mServiceHandler.postDelayed(() -> mRecorder
+                            .stopRecordAudioFile(RecordService.this.getApplicationContext()), 10000);
                 }
             };
             mServiceHandler.post(mRecordRunnable);
         } else {
-            AudioRecorder.getsInstance()
-                    .stopRecordAudioFile(RecordService.this);
+            mRecorder.stopRecordAudioFile(RecordService.this.getApplicationContext());
         }
         return START_STICKY;
     }

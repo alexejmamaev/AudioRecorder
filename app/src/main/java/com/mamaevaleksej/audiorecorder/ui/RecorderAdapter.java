@@ -9,8 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mamaevaleksej.audiorecorder.R;
-import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
-import com.mamaevaleksej.audiorecorder.model.Record;
+import com.mamaevaleksej.audiorecorder.data.AppRepository;
+import com.mamaevaleksej.audiorecorder.data.Record;
+import com.mamaevaleksej.audiorecorder.ui.views.ItemTouchHelperAdapter;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -28,10 +29,12 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
     private Context mContext;
     private List<Record> mRecords;
     private SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+    private AppRepository mRepository;
 
-    public RecorderAdapter(Context context, ItemClickListener listener) {
-        mContext = context;
+    public RecorderAdapter(Context context, ItemClickListener listener, AppRepository repository) {
+        mContext = context.getApplicationContext();
         mListener = listener;
+        mRepository = repository;
     }
 
     @NonNull
@@ -80,7 +83,7 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
     @Override
     public void onItemDismiss(int position) {
         Record record = mRecords.get(position);
-        AppRepository.getsInstance(mContext).deleteRecord(record.getId());
+        mRepository.deleteRecord(record.getId());
         notifyDataSetChanged();
         File recordFile = new File(record.getFilePath());
         recordFile.delete();

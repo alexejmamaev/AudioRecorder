@@ -23,12 +23,14 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.mamaevaleksej.audiorecorder.Constants;
 import com.mamaevaleksej.audiorecorder.R;
-import com.mamaevaleksej.audiorecorder.Utils.AppRepository;
-import com.mamaevaleksej.audiorecorder.Utils.Constants;
-import com.mamaevaleksej.audiorecorder.model.Record;
+import com.mamaevaleksej.audiorecorder.Utils.InjectorUtils;
+import com.mamaevaleksej.audiorecorder.Utils.ServiceUtils;
+import com.mamaevaleksej.audiorecorder.data.Record;
 import com.mamaevaleksej.audiorecorder.sync.PlayService;
 import com.mamaevaleksej.audiorecorder.sync.RecordService;
+import com.mamaevaleksej.audiorecorder.ui.views.ItemTouchHelperCallback;
 
 public class RecorderActivity extends AppCompatActivity implements RecorderAdapter.ItemClickListener {
 
@@ -116,13 +118,13 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
 
         Log.d(TAG, "RecordService is running ==============>>> "
-                + AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class));
+                + ServiceUtils.myServiceIsRunning(this, RecordService.class));
         Log.d(TAG, "PlayService is running ==============>>> "
-                + AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class));
+                + ServiceUtils.myServiceIsRunning(this, PlayService.class));
 
 
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.play_fragment_placeholder);
-        if (!AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)
+        if (!ServiceUtils.myServiceIsRunning(this, PlayService.class)
                 && currentFragment != null){
             getSupportFragmentManager().beginTransaction().remove(currentFragment).commit();
         }
@@ -181,14 +183,17 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         mRecyclerView = findViewById(R.id.recyclerview_records);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
-        mAdapter = new RecorderAdapter(this, this);
+        mAdapter = new RecorderAdapter(this, this,
+                InjectorUtils.provideRepository(this.getApplicationContext()));
         mRecyclerView.setAdapter(mAdapter);
         mLoadingIndicator = findViewById(R.id.loading_indicator);
 
     }
 
     private void setupViewModel() {
-        mViewModel = ViewModelProviders.of(this)
+        RecorderViewModelFactory factory =
+                InjectorUtils.provideViewModelFactory(this.getApplicationContext());
+        mViewModel = ViewModelProviders.of(this, factory)
                 .get(RecorderActivityViewModel.class);
         mViewModel.getRecords().observe(this, records -> {
             if (records != null){
@@ -231,13 +236,13 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
         intent.putExtra(Constants.IS_RECORDING, mViewModel.isRecording());
         startService(intent);
         Log.d(TAG, "setRecordService Service Record is running: -------> " +
-                AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class));
+                ServiceUtils.myServiceIsRunning(this, RecordService.class));
     }
 
     private void setPlayService(int id) {
         mViewModel.setItemID(id);
         //Kicks off new Play service if Play service isn't running yet
-        if (AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)) {
+        if (ServiceUtils.myServiceIsRunning(this, PlayService.class)) {
             stopService(new Intent(this, PlayService.class));
         }
 
@@ -267,12 +272,12 @@ public class RecorderActivity extends AppCompatActivity implements RecorderAdapt
             }
             Log.d(TAG, "App is killed >>>>>>>>>>>");
             // Stops Record Service
-            if (AppRepository.getsInstance(this).myServiceIsRunning(this, RecordService.class)) {
+            if (ServiceUtils.myServiceIsRunning(this, RecordService.class)) {
                 mViewModel.setRecording(false);
                 setRecordService();
             }
             // Stops Play Service
-            if (AppRepository.getsInstance(this).myServiceIsRunning(this, PlayService.class)) {
+            if (ServiceUtils.myServiceIsRunning(this, PlayService.class)) {
                 stopService(new Intent(this, PlayService.class));
             }
             // Unregister BroadcastReceiver

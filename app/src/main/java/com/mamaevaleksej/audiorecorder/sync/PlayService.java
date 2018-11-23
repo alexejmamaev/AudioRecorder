@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.mamaevaleksej.audiorecorder.Utils.AudioTrackPlayer;
-
 public class PlayService extends IntentService {
 
     private static final String TAG = PlayService.class.getSimpleName();

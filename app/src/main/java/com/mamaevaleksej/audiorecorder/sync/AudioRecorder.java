@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.Utils;
+package com.mamaevaleksej.audiorecorder.sync;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,9 +8,11 @@ import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.mamaevaleksej.audiorecorder.model.Record;
-import com.mamaevaleksej.audiorecorder.sync.NotificationTask;
-import com.mamaevaleksej.audiorecorder.sync.RecordService;
+import com.mamaevaleksej.audiorecorder.AppExecutors;
+import com.mamaevaleksej.audiorecorder.Constants;
+import com.mamaevaleksej.audiorecorder.Utils.ServiceUtils;
+import com.mamaevaleksej.audiorecorder.data.AppRepository;
+import com.mamaevaleksej.audiorecorder.data.Record;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,30 +29,34 @@ public class AudioRecorder {
     private AudioRecord mAudioRecord;
     private boolean isRecording;
     private long mStartTime;
+    private AppExecutors mExecutors;
+    private AppRepository mRepository;
 
-    private AudioRecorder(){
+    private AudioRecorder(AppExecutors executors, AppRepository repository){
         this.mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 Constants.RECORDER_SAMPLERATE, Constants.RECORDER_CHANNELS,
                 Constants.RECORDER_AUDIO_ENCODING, Constants.BUFFER_SIZE);
+        mExecutors = executors;
+        mRepository = repository;
     }
 
-    public synchronized static AudioRecorder getsInstance(){
+    public synchronized static AudioRecorder getsInstance(AppExecutors executors, AppRepository repository){
         if (sInstance == null){
             synchronized (LOCK){
-                sInstance = new AudioRecorder();
+                sInstance = new AudioRecorder(executors, repository);
             }
         }
         return sInstance;
     }
 
-    public void recordAudioFile(long startTime) {
+    public void recordAudioFile() {
         if (mAudioRecord != null){
             mAudioRecord.stop();
             mAudioRecord.release();
             mAudioRecord = null;
         }
         isRecording = true;
-        mStartTime = startTime;
+        mStartTime = System.currentTimeMillis();
         mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 Constants.RECORDER_SAMPLERATE, Constants.RECORDER_CHANNELS,
                 Constants.RECORDER_AUDIO_ENCODING, Constants.BUFFER_SIZE);
@@ -58,12 +64,7 @@ public class AudioRecorder {
         int i = mAudioRecord.getState();
         if (i == 1) mAudioRecord.startRecording();
 
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                writeAudioDataToFile();
-            }
-        });
+        mExecutors.diskIO().execute(this::writeAudioDataToFile);
     }
 
     private void writeAudioDataToFile() {
@@ -123,11 +124,11 @@ public class AudioRecorder {
 
         Record mRecord = new Record(mRecordedFilePath, date, recordLengthInMlls);
 
-        AppRepository.getsInstance(context).insertNewRecord(mRecord);
+        mRepository.insertNewRecord(mRecord);
 
         context.stopService(new Intent(context, RecordService.class));
         Log.d(TAG, "RecordService is running ==============>>> "
-                + AppRepository.getsInstance(context).myServiceIsRunning(context, RecordService.class));
+                + ServiceUtils.myServiceIsRunning(context, RecordService.class));
     }
 
     private static String getFilePath(){

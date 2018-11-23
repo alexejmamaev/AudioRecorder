@@ -44,7 +44,7 @@
             app:layout_constraintStart_toEndOf="@+id/progressBar_pause_button"
             app:layout_constraintTop_toBottomOf="@+id/scrollingTextView" />
 
-        <com.mamaevaleksej.audiorecorder.Utils.ScrollingTextView
+        <com.mamaevaleksej.audiorecorder.ui.views.ScrollingTextView
             android:id="@+id/scrollingTextView"
             android:layout_width="0dp"
             android:layout_height="24dp"

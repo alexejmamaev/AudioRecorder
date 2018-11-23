@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.Utils;
+package com.mamaevaleksej.audiorecorder.sync;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +9,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.mamaevaleksej.audiorecorder.model.Record;
-import com.mamaevaleksej.audiorecorder.sync.PlayService;
+import com.mamaevaleksej.audiorecorder.Constants;
+import com.mamaevaleksej.audiorecorder.Utils.InjectorUtils;
+import com.mamaevaleksej.audiorecorder.data.Record;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -103,7 +104,7 @@ public class AudioTrackPlayer {
 
     // Returns the last recorded audio file by it's path
     private static String getLastRecordedFilePath(Context context, int id){
-        Record record = AppRepository.getsInstance(context).getRecord(id);
+        Record record = InjectorUtils.provideRepository(context).getRecord(id);
         if (record == null) {
             return null;
         }

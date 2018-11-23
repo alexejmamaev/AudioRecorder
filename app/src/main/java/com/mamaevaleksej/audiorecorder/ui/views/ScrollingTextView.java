@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.Utils;
+package com.mamaevaleksej.audiorecorder.ui.views;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatTextView;

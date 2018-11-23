@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.mamaevaleksej.audiorecorder.R;
-import com.mamaevaleksej.audiorecorder.Utils.ScrollingTextView;
+import com.mamaevaleksej.audiorecorder.ui.views.ScrollingTextView;
 
 import java.io.File;
 

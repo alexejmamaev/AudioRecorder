@@ -5,8 +5,6 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
-import com.mamaevaleksej.audiorecorder.model.Record;
-
 import java.util.List;
 
 @Dao
@@ -27,5 +25,8 @@ public interface RecordsDAO {
 
     @Query("SELECT COUNT(*) FROM records")
     int count();
+
+    @Query("DELETE FROM records")
+    void nukeTable();
 
 }

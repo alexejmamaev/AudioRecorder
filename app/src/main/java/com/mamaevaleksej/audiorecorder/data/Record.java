@@ -1,4 +1,4 @@
-package com.mamaevaleksej.audiorecorder.model;
+package com.mamaevaleksej.audiorecorder.data;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;

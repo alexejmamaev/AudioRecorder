@@ -2,7 +2,7 @@ package com.mamaevaleksej.audiorecorder.sync;
 
 import android.content.Context;
 
-import com.mamaevaleksej.audiorecorder.Utils.Constants;
+import com.mamaevaleksej.audiorecorder.Constants;
 import com.mamaevaleksej.audiorecorder.Utils.NotificationUtils;
 
 public class NotificationTask {
