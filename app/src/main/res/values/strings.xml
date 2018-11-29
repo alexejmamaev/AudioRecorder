@@ -25,5 +25,6 @@
     <string name="notification_title" translatable="false">"Audio Recorder"</string>
     <string name="notification_recording">"Recording...."</string>
     <string name="notification_stop_recording">"Stop"</string>
+    <string name="notification_ignored_records">"You've got ignored records. Whould you like to listen to them?"</string>
 
 </resources>

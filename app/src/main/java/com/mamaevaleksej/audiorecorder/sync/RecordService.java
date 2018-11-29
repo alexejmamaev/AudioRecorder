@@ -50,15 +50,12 @@ public class RecordService extends Service {
         boolean isRecording = intent.getBooleanExtra(Constants.IS_RECORDING, false);
 
         if (isRecording){
-            NotificationTask.executeTask(this, Constants.ACTION_SHOW_NOTIFICATION);
-            final Runnable mRecordRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mRecorder.recordAudioFile();
-                    // Stops recording in 10 second period
-                    mServiceHandler.postDelayed(() -> mRecorder
-                            .stopRecordAudioFile(RecordService.this.getApplicationContext()), 10000);
-                }
+            NotificationTask.executeTask(this, NotificationTask.ACTION_SHOW_NOTIFICATION);
+            final Runnable mRecordRunnable = () -> {
+                mRecorder.recordAudioFile();
+                // Stops recording in 10 second period
+                mServiceHandler.postDelayed(() -> mRecorder
+                        .stopRecordAudioFile(RecordService.this.getApplicationContext()), 10000);
             };
             mServiceHandler.post(mRecordRunnable);
         } else {

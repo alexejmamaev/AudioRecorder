@@ -8,5 +8,6 @@
     <string name="file_not_found">"Файл не найден"</string>
     <string name="notification_recording">Идет запись....</string>
     <string name="notification_stop_recording">Остановить</string>
+    <string name="notification_ignored_records">У Вас есть непрослушанные записи. Хотите прослушать?</string>
 
 </resources>

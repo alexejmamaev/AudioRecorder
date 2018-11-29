@@ -32,18 +32,17 @@ public class AudioRecorder {
     private AppExecutors mExecutors;
     private AppRepository mRepository;
 
-    private AudioRecorder(AppExecutors executors, AppRepository repository){
-        this.mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                Constants.RECORDER_SAMPLERATE, Constants.RECORDER_CHANNELS,
-                Constants.RECORDER_AUDIO_ENCODING, Constants.BUFFER_SIZE);
+    private AudioRecorder(AppExecutors executors, AppRepository repository, AudioRecord record){
+//        mAudioRecord = record;
         mExecutors = executors;
         mRepository = repository;
     }
 
-    public synchronized static AudioRecorder getsInstance(AppExecutors executors, AppRepository repository){
+    public synchronized static AudioRecorder getsInstance
+            (AppExecutors executors, AppRepository repository, AudioRecord record){
         if (sInstance == null){
             synchronized (LOCK){
-                sInstance = new AudioRecorder(executors, repository);
+                sInstance = new AudioRecorder(executors, repository, record);
             }
         }
         return sInstance;
@@ -101,7 +100,7 @@ public class AudioRecorder {
 
     public void stopRecordAudioFile(Context context) {
         isRecording = false;
-        NotificationTask.executeTask(context, Constants.ACTION_CLEAR_NOTIFICATION);
+        NotificationTask.executeTask(context, NotificationTask.ACTION_CLEAR_NOTIFICATION);
         if (null != mAudioRecord) {
             int i = mAudioRecord.getState();
             if (i == 1) mAudioRecord.stop();
@@ -125,6 +124,8 @@ public class AudioRecorder {
         Record mRecord = new Record(mRecordedFilePath, date, recordLengthInMlls);
 
         mRepository.insertNewRecord(mRecord);
+
+        RecordReminder.ScheduleReminder(context);
 
         context.stopService(new Intent(context, RecordService.class));
         Log.d(TAG, "RecordService is running ==============>>> "

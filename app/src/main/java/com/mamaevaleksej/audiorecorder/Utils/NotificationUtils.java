@@ -14,8 +14,9 @@ import android.support.v4.content.ContextCompat;
 
 import com.mamaevaleksej.audiorecorder.Constants;
 import com.mamaevaleksej.audiorecorder.R;
-import com.mamaevaleksej.audiorecorder.ui.RecorderActivity;
+import com.mamaevaleksej.audiorecorder.sync.NotificationTask;
 import com.mamaevaleksej.audiorecorder.sync.RecordService;
+import com.mamaevaleksej.audiorecorder.ui.RecorderActivity;
 
 public class NotificationUtils {
 
@@ -27,7 +28,7 @@ public class NotificationUtils {
         }
     }
 
-    public static void fileIsBeingRecorded(Context context) {
+    public static void setNotification(Context context, String action) {
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -42,16 +43,28 @@ public class NotificationUtils {
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(context, Constants.RECORDER_NOTIFICATION_CHANNEL_ID)
                         .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                        .setSmallIcon(R.drawable.ic_record_notification)
                         .setLargeIcon(notificationLargeIcon(context))
                         .setContentTitle(context.getString(R.string.notification_title))
-                        .setContentText(context.getString(R.string.notification_recording))
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText
-                                (context.getString(R.string.notification_recording)))
                         .setDefaults(Notification.DEFAULT_VIBRATE)
                         .setContentIntent(contentIntent(context))
-                        .addAction(cancelRecording(context))
                         .setAutoCancel(true);
+
+        /* Notification while audio is being recorded */
+        if (action.equals(NotificationTask.ACTION_SHOW_NOTIFICATION)){
+            notificationBuilder.setSmallIcon(R.drawable.ic_record_notification)
+                    .setContentText(context.getString(R.string.notification_recording))
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText
+                            (context.getString(R.string.notification_recording)))
+                    .addAction(cancelRecording(context));
+
+        }
+        /* Notification reminder that there is an ignored record in the BD */
+        else if(action.equals(NotificationTask.ACTION_REMIND_OF_IGNORED_RECORDS)){
+            notificationBuilder.setSmallIcon(R.drawable.ic_mic_notification)
+                    .setContentText(context.getString(R.string.notification_ignored_records))
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText
+                            (context.getString(R.string.notification_ignored_records)));
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -64,7 +77,7 @@ public class NotificationUtils {
 
     private static NotificationCompat.Action cancelRecording(Context context){
         Intent cancelIntent = new Intent(context, RecordService.class);
-        cancelIntent.setAction(Constants.ACTION_CLEAR_NOTIFICATION);
+        cancelIntent.setAction(NotificationTask.ACTION_CLEAR_NOTIFICATION);
         PendingIntent cancelRecordingPendingIntent = PendingIntent.getService(
                 context,
                 Constants.ACTION_CANCEL_RECORDING_PENDING_INTENT_ID,
@@ -85,7 +98,7 @@ public class NotificationUtils {
     }
 
     private static Bitmap notificationLargeIcon(Context context){
-        return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mic_black_24dp);
+        return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mic_notification);
     }
 
 }

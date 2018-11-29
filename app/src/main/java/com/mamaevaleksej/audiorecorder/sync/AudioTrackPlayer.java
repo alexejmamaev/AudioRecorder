@@ -134,17 +134,21 @@ public class AudioTrackPlayer {
                 e1.printStackTrace();
             }
 
-            mAudioTrack.write(buffer, 0, buffer.length);
             boolean playbackFinished = false;
 
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (mAudioTrack!= null){
+                mAudioTrack.write(buffer, 0, buffer.length);
+
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (buffer.length != 0) {
+                    playbackFinished = true;
+                }
             }
-            if (buffer.length != 0) {
-                playbackFinished = true;
-            }
+
 
             return playbackFinished;
     }
