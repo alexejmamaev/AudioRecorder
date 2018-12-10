@@ -54,4 +54,12 @@ public class AppRepository {
         mDAO.nukeTable();
     }
 
+    public void setToListened(final int id){
+        mExecutors.diskIO().execute(() -> mDAO.setListened(id));
+    }
+
+    public List getAllIgnoredRecords(){
+         return mDAO.getAllIgnoredRecordsList();
+    }
+
 }

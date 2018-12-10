@@ -5,6 +5,10 @@ import android.os.AsyncTask;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
+import com.mamaevaleksej.audiorecorder.Utils.InjectorUtils;
+import com.mamaevaleksej.audiorecorder.data.Record;
+
+import java.util.List;
 
 public class RecordReminderFirebaseJobService extends JobService {
 
@@ -30,7 +34,10 @@ public class RecordReminderFirebaseJobService extends JobService {
             @Override
             protected Object doInBackground(Object[] objects) {
                 Context context = RecordReminderFirebaseJobService.this;
-                NotificationTask.executeTask(context, NotificationTask.ACTION_REMIND_OF_IGNORED_RECORDS);
+                List<Record> ignoredRecords = InjectorUtils.provideRepository(context).getAllIgnoredRecords();
+                if (ignoredRecords.size() > 0){
+                    NotificationTask.executeTask(context, NotificationTask.ACTION_REMIND_OF_IGNORED_RECORDS);
+                }
                 return null;
             }
 

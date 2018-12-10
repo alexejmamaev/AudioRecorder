@@ -121,7 +121,7 @@ public class AudioRecorder {
         intent1.putExtra(Constants.RECORDED_FILE_PATH, mRecordedFilePath);
         mBroadcastManager.sendBroadcast(intent1);
 
-        Record mRecord = new Record(mRecordedFilePath, date, recordLengthInMlls);
+        Record mRecord = new Record(mRecordedFilePath, date, recordLengthInMlls, false);
 
         mRepository.insertNewRecord(mRecord);
 

@@ -24,7 +24,8 @@ public class PlayService extends IntentService {
         if (intent != null){
             mRecordId = intent.getIntExtra(ID, 0);
         }
-        AudioTrackPlayer.reversePlayRecordedAudioFile(this, mRecordId);
+        /* Play record with current ID */
+        AudioTrackPlayer.reversePlayRecordedAudioFile(this.getApplicationContext(), mRecordId);
     }
 
     @Override

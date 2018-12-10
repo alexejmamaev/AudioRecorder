@@ -1,6 +1,7 @@
 package com.mamaevaleksej.audiorecorder.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -61,6 +62,13 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
                 recordLength - TimeUnit.SECONDS.toMillis(seconds));
         viewHolder.recordLengthTV.setText(formattedLength);
 
+        if (!record.isListened()) {
+            viewHolder.recordNameTV.setTextColor(Color.RED);
+        } else {
+            viewHolder.recordNameTV.setTextColor(Color.BLACK);
+        }
+
+
         // Дата записи
         java.util.Date recordTime = record.getRecordTime();
         viewHolder.recordTimeTV.setText(dateFormat.format(recordTime));
@@ -102,9 +110,7 @@ public class RecorderAdapter extends RecyclerView.Adapter<RecorderAdapter.Record
         notifyDataSetChanged();
     }
 
-    /**
-     * VIEW HOLDER
-     */
+    /* VIEW HOLDER */
     class RecorderAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView recordNameTV;

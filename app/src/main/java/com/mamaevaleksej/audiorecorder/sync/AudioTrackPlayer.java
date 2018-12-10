@@ -62,6 +62,7 @@ public class AudioTrackPlayer {
         // Checks when audio track stop playing
         boolean playbackFinished = playReverse();
         if (playbackFinished){
+            InjectorUtils.provideRepository(context.getApplicationContext()).setToListened(id);
             stopPlaying(context);
         }
     }

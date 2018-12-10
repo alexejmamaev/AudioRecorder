@@ -98,7 +98,7 @@ public class NotificationUtils {
     }
 
     private static Bitmap notificationLargeIcon(Context context){
-        return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mic_notification);
+        return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mic_large_notification_64dp);
     }
 
 }
